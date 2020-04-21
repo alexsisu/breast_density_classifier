@@ -37,7 +37,8 @@ def histogram_generator(img, bins):
     hist_result = hist[0] / (hist[0].sum())
     return hist_result
 
-
+import imageio
+import scipy
 def load_images(image_path, view):
     """
     Function that loads and preprocess input images
@@ -45,7 +46,9 @@ def load_images(image_path, view):
     :param view: L-CC / R-CC / L-MLO / R-MLO
     :return: Batch x Height x Width x Channels array
     """
-    image = misc.imread(image_path + view + '.png')
+    #image = misc.imread(image_path + view + '.png')
+    image = imageio.imread(image_path + view + '.png')
+    print(f"original image shape: {image.shape}")
     image = image.astype(np.float32)
     normalize_single_image(image)
     image = np.expand_dims(image, axis=0)
