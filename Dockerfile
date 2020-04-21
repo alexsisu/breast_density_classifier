@@ -9,8 +9,6 @@ RUN  conda install -y  jupyter
 
 COPY *.* /opt/app/bdc/
 
-COPY run.sh /opt/app/bdc/
-
 ADD saved_models /opt/app/bdc/saved_models
 
 ADD images /opt/app/bdc/images
@@ -19,5 +17,15 @@ RUN apt-get update && apt-get install -y procps && apt-get install -y net-tools 
 
 WORKDIR /opt/app/bdc
 
-#CMD ["nohup", "/bin/bash", "run.sh","&"]
+ENV TINI_VERSION v0.6.0
+
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/bin/tini
+
+RUN chmod +x /usr/bin/tini
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+
+EXPOSE 8888
+
+CMD ["jupyter", "notebook", "--allow-root", "--port=8888", "--no-browser", "--ip=0.0.0.0","--NotebookApp.token=''"]
 
