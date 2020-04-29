@@ -6,7 +6,6 @@ import utils
 
 
 def inference(parameters, verbose=True):
-
     # resolve device
     device = torch.device(
         "cuda:{}".format(parameters["gpu_number"]) if parameters["device_type"] == "gpu"
@@ -47,20 +46,26 @@ def inference(parameters, verbose=True):
     with torch.no_grad():
         prediction_density = model(x).cpu().numpy()
 
-    if verbose:
-        # nicely prints out the predictions
-        print('Density prediction:\n'
-              '\tAlmost entirely fatty (0):\t\t\t' + str(prediction_density[0, 0]) + '\n'
-              '\tScattered areas of fibroglandular density (1):\t' + str(prediction_density[0, 1]) + '\n'
-              '\tHeterogeneously dense (2):\t\t\t' + str(prediction_density[0, 2]) + '\n'
-              '\tExtremely dense (3):\t\t\t\t' + str(prediction_density[0, 3]) + '\n')
+    final_result = 'Density prediction:\n' + '\tAlmost entirely fatty (0):\t\t\t' + str(
+        prediction_density[0, 0]) + '\n' + '\tScattered areas of fibroglandular density (1):\t' + str(
+        prediction_density[0, 1]) + '\n' + '\tHeterogeneously dense (2):\t\t\t' + str(
+        prediction_density[0, 2]) + '\n' + '\tExtremely dense (3):\t\t\t\t' + str(prediction_density[0, 3]) + '\n'
+    print('Density prediction:\n'
+          '\tAlmost entirely fatty (0):\t\t\t' + str(prediction_density[0, 0]) + '\n'
+                                                                                 '\tScattered areas of fibroglandular density (1):\t' + str(
+        prediction_density[0, 1]) + '\n'
+                                    '\tHeterogeneously dense (2):\t\t\t' + str(prediction_density[0, 2]) + '\n'
+                                                                                                           '\tExtremely dense (3):\t\t\t\t' + str(
+        prediction_density[0, 3]) + '\n')
 
     return prediction_density[0]
+
 
 import os
 import ntpath
 from shutil import copyfile
 import shutil
+
 
 def prepare_image_for_processing(full_path_input_image):
     if not os.path.exists("temp_images"):
@@ -69,11 +74,11 @@ def prepare_image_for_processing(full_path_input_image):
         shutil.rmtree("temp_images")
         os.mkdir("temp_images")
 
-    target_names=["R-MLO","R-CC","L-MLO","L-CC"]
+    target_names = ["R-MLO", "R-CC", "L-MLO", "L-CC"]
     for end_name in target_names:
-        full_end_name = os.path.join("temp_images",end_name+".png")
+        full_end_name = os.path.join("temp_images", end_name + ".png")
         print(f"Copy {full_path_input_image} to {full_end_name}")
-        copyfile(full_path_input_image,full_end_name)
+        copyfile(full_path_input_image, full_end_name)
     return "temp_images/"
 
 

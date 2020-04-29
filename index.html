@@ -1,0 +1,250 @@
+<div id="wrapper">
+  <div class="wr-1">
+    <h1>Drop your Files</h1>
+    <span>or</span>
+    <br />
+    <form action="" id="form">
+      <label for="file-upload">Choose Manually</label>
+      <input type="file" name="files[]" id="file-upload" multiple />
+      <br />
+      <button type="submit" id="submit">Submit</button>
+      <button
+        style="background-color: rgb(241, 121, 121);"
+        type="button"
+        id="clear"
+      >
+        Clear
+      </button>
+    </form>
+  </div>
+  <div class="wr-2">
+    <div id="file-count"></div>
+    <div id="file-preview"></div>
+  </div>
+</div>
+
+<style>
+  @import url("https://fonts.googleapis.com/css?family=Muli:400,700");
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: "Muli" !important;
+  }
+
+  button {
+    background: green;
+    border: none;
+    padding: 10px 20px;
+    color: #fff;
+    border-radius: 20px;
+    margin-top: 15px;
+  }
+
+  button:hover {
+    cursor: pointer;
+    background: darkgreen;
+  }
+
+  #wrapper {
+    width: 450px;
+    /* overflow-y: auto; */
+    /* overflow-x: hidden; */
+    background: #f1f1f1;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    border-radius: 20px;
+    text-align: center;
+    position: relative;
+  }
+
+  #wrapper.highlight:before {
+    border: 2px dashed #e1e1e1;
+  }
+
+  #wrapper.highlight {
+    background: #d1d1d1;
+  }
+
+  #file-preview img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    display: inline-block;
+    position: relative;
+    margin: 5px;
+  }
+
+  #file-preview img:hover {
+    cursor: pointer;
+    opacity: 0.5;
+  }
+
+  #file-preview img:after {
+    content: "asfa";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 2;
+  }
+
+  input[type="file"] {
+    display: none;
+  }
+  label[for="file-upload"] {
+    padding: 10px 25px;
+    border: 1px solid #a1a1a1;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  label[for="file-upload"]:hover {
+    cursor: pointer;
+  }
+  .wr-1 {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+  .wr-2 {
+    flex: 1;
+  }
+</style>
+
+<script>
+  (function () {
+    const wrapper = document.getElementById("wrapper");
+    const form = document.getElementById("form");
+    const fileUpload = document.getElementById("file-upload");
+    const fileCount = document.getElementById("file-count");
+    const preview = document.getElementById("file-preview");
+    const regex = /\.(jpg|png|jpeg)$/;
+    let files = [];
+
+    const dragEvents = ["dragstart, dragover", "dragend", "dragleave", "drop"];
+    dragEvents.forEach((eventTarget) => {
+      wrapper.addEventListener(eventTarget, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log("fired");
+      });
+    });
+
+    window.addEventListener("drop", (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    });
+    window.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    });
+
+    function dragstart() {
+      wrapper.classList.add("highlight");
+      console.log("dragstart");
+    }
+    function dragover() {
+      wrapper.classList.add("highlight");
+      console.log("dragover");
+    }
+    function dragend() {
+      wrapper.classList.remove("highlight");
+    }
+    function dragleave() {
+      wrapper.classList.remove("highlight");
+    }
+
+    function checkFile(selectedFiles) {
+      for (let file of selectedFiles) {
+        if (regex.test(file.name)) {
+          files.push(file);
+        } else {
+          alert("You can only upload images");
+        }
+      }
+      createPreview(files);
+    }
+
+    function dropFiles(e) {
+      console.log("drop");
+      const transferredFiles = e.dataTransfer.files;
+      checkFile(transferredFiles);
+      console.log(files);
+    }
+
+    function createPreview(filelist) {
+      preview.innerHTML = "";
+      fileCount.innerHTML = "";
+      let count = document.createElement("p");
+      count.textContent = `${files.length} ${
+        files.length <= 1 ? "file" : "files"
+      } selected `;
+
+      fileCount.appendChild(count);
+      filelist.forEach((file) => {
+        const img = new Image();
+        img.setAttribute("src", URL.createObjectURL(file));
+        img.addEventListener("click", () => {
+          console.log("clicked");
+          files = files.filter(
+            (file) => file !== files[img.getAttribute("data-file")]
+          );
+          createPreview(files);
+        });
+        img.dataset.file = filelist.indexOf(file);
+        preview.appendChild(img);
+      });
+    }
+
+    wrapper.addEventListener("dragstart", dragstart);
+    wrapper.addEventListener("dragover", dragover);
+    wrapper.addEventListener("dragend", dragend);
+    wrapper.addEventListener("dragleave", dragleave);
+    wrapper.addEventListener("drop", dropFiles);
+
+    fileUpload.addEventListener("change", (e) => {
+      const files = e.target.files;
+      checkFile(files);
+    });
+
+    document.getElementById("clear").addEventListener("click", (ev) => {
+      files = [];
+      createPreview([]);
+    });
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+
+      if (files.length > 0) {
+        files.forEach((file) => {
+          formData.append("file", file);
+        });
+      } else {
+        alert("You have not uploaded a file");
+        return;
+      }
+
+      var xhr = new XMLHttpRequest();
+      // Replace API PATH
+      xhr.open("POST", "http://0.0.0.0:15432/upload_image ", true);
+      xhr.send(formData);
+      xhr.onload = function () {
+        alert("DONE");
+      };
+    });
+  })();
+</script>
