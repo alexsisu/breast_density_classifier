@@ -23,9 +23,12 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/
 
 RUN chmod +x /usr/bin/tini
 
-ENTRYPOINT ["/usr/bin/tini", "--"]
+EXPOSE 15432
 
-EXPOSE 8888
+RUN python simple_server.py
+#ENTRYPOINT ["/usr/bin/tini", "--"]
 
-CMD ["jupyter", "notebook", "--allow-root", "--port=8888", "--no-browser", "--ip=0.0.0.0","--NotebookApp.token=''"]
+#EXPOSE 8888
+
+#CMD ["jupyter", "notebook", "--allow-root", "--port=8888", "--no-browser", "--ip=0.0.0.0","--NotebookApp.token=''"]
 

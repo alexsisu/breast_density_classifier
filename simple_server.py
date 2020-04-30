@@ -19,10 +19,10 @@ async def store_image_handler(request):
 
     all_content = contained_data.file
 
-    print("retrieved 2", all_content)
+    #print("retrieved 2", all_content)
     all_content = all_content.read()
 
-    print("retrieved 3", all_content)
+    #print("retrieved 3", all_content)
 
     with open(filename, "wb") as o:
         o.write(all_content)
